@@ -36,3 +36,5 @@ h3 { margin-bottom: 4px; }
 a { color: var(--cyan); overflow-wrap: anywhere; }
 ul { padding-left: 22px; }
 .icon { display: block; border-radius: 26px; margin-bottom: 16px; }
+.back { margin: 0 0 16px; font-size: 15px; }
+.back a { text-decoration: none; }
