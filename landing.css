@@ -184,20 +184,6 @@ main { padding: 0 var(--gutter); }
 .app-store-badge { display: inline-block; width: 180px; line-height: 0; border-radius: 12px; transition: transform 0.15s ease; }
 .app-store-badge:hover { transform: translateY(-2px); }
 .app-store-badge svg { width: 100%; height: auto; }
-.android-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 16px;
-  border-radius: 999px;
-  border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.06);
-  color: var(--text);
-  font-weight: 600;
-  font-size: 15px;
-  text-decoration: none;
-}
-.android-pill .dot { width: 8px; height: 8px; border-radius: 50%; background: #3ddc84; box-shadow: 0 0 10px #3ddc84; }
 
 .stats { list-style: none; display: flex; gap: 12px; padding: 0; margin: 0; flex-wrap: wrap; }
 .stats li {
@@ -482,23 +468,6 @@ main { padding: 0 var(--gutter); }
   .shots { justify-content: center; overflow: visible; }
   .shots img { width: 206px; }
 }
-
-/* ---------- Android ---------- */
-.android {
-  display: grid;
-  grid-template-columns: 1.3fr 1fr;
-  gap: 24px 40px;
-  align-items: center;
-  padding: 36px;
-  background:
-    radial-gradient(500px 260px at 100% 0%, rgba(61, 220, 132, 0.18), transparent 70%),
-    linear-gradient(180deg, var(--panel-2), var(--panel));
-}
-.android p { color: var(--muted); }
-.android-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
-.android-steps .btn { width: 100%; }
-.android .fine { grid-column: 1 / -1; font-size: 14px; margin: 0; }
-@media (max-width: 760px) { .android { grid-template-columns: 1fr; padding: 26px 20px; text-align: center; } }
 
 /* ---------- FAQ ---------- */
 .faq { max-width: 760px; margin: 0 auto; display: grid; gap: 14px; }
