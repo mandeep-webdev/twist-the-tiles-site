@@ -456,13 +456,41 @@
       setTimeout(() => { flip(original); busyCard = false; }, 1700);
     };
     card.addEventListener('click', play);
-    let visible = false;
-    new IntersectionObserver(([e]) => {
-      visible = e.isIntersecting;
-      if (visible) setTimeout(play, 300 + Math.random() * 900);
-    }, { threshold: 0.6 }).observe(card);
-    setInterval(() => { if (visible && !document.hidden && Math.random() < 0.35) play(); }, 2600);
+    card._play = play;
   });
+
+  // Touch screens: cards in a group take turns. Every couple of seconds the
+  // next card on screen gets its moment (world cards twist, the others lift
+  // and glow with a bouncing number or wiggling icon), one at a time.
+  if (!canHover) {
+    const takeTurns = (selector, everyMs, act) => {
+      const items = [...document.querySelectorAll(selector)];
+      const onScreen = new Set();
+      const io2 = new IntersectionObserver((entries) => {
+        entries.forEach((e) => (e.isIntersecting ? onScreen.add(e.target) : onScreen.delete(e.target)));
+      }, { threshold: 0.6 });
+      items.forEach((el) => io2.observe(el));
+      let i = -1;
+      setInterval(() => {
+        if (document.hidden || !onScreen.size) return;
+        for (let k = 0; k < items.length; k++) {
+          i = (i + 1) % items.length;
+          if (onScreen.has(items[i])) { act(items[i]); return; }
+        }
+      }, everyMs);
+    };
+    const highlight = (el) => {
+      el.classList.remove('turn');
+      void el.offsetWidth;
+      el.classList.add('turn');
+      setTimeout(() => el.classList.remove('turn'), 1300);
+    };
+    takeTurns('.world', 2000, (el) => el._play && el._play());
+    takeTurns('.steps > li', 1700, highlight);
+    takeTurns('.features > .card', 1700, highlight);
+    document.querySelectorAll('.steps > li, .features > .card').forEach((el) =>
+      el.addEventListener('click', () => highlight(el)));
+  }
 
   if (!canHover) return;
 
