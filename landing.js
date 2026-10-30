@@ -174,6 +174,7 @@
       if (instant) el.classList.add('no-anim');
       el.style.setProperty('--c', cell % 3);
       el.style.setProperty('--r', Math.floor(cell / 3));
+      el.dataset.r = Math.floor(cell / 3);
     });
     if (instant) {
       void grid.offsetWidth;
@@ -223,6 +224,7 @@
       wrapEl.classList.remove('no-anim');
     }
 
+    board.classList.remove('nudge');
     board9 = applyMove(board9, m);
     moves++;
     movesEl.textContent = String(moves);
@@ -318,10 +320,148 @@
 
   buildTiles();
   newGame(start);
+  board.classList.add('nudge');
 
   // Warm up the other demo themes so switching tabs is instant.
   window.addEventListener('load', () => {
     ['ocean', 'space'].forEach((dir) =>
       tilesOf(WORLDS.find((w) => w.dir === dir)).forEach((t) => { new Image().src = t.src; }));
+  });
+})();
+
+// ---------------------------------------------------------------------
+// Motion layer: scroll reveal, tilt, spotlight, count-up, world twists.
+// ---------------------------------------------------------------------
+(() => {
+  'use strict';
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const canHover = window.matchMedia('(hover: hover)').matches;
+
+  // Scroll progress bar and nav shadow.
+  const bar = document.querySelector('.scroll-progress');
+  const nav = document.querySelector('.nav');
+  const onScroll = () => {
+    const max = document.documentElement.scrollHeight - innerHeight;
+    if (bar) bar.style.setProperty('--p', max > 0 ? scrollY / max : 0);
+    if (nav) nav.classList.toggle('scrolled', scrollY > 10);
+  };
+  addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  if (reduce) return;
+
+  // Faint tiles drifting in the background.
+  const bg = document.getElementById('bgTiles');
+  if (bg) {
+    const pics = ['fruit/apple', 'ocean/starfish', 'space/moon', 'sweet/donut', 'animal/panda', 'flower/sunflower', 'vehicles/car', 'fantasy/unicorn'];
+    pics.forEach((p, i) => {
+      const img = document.createElement('img');
+      img.className = 'bg-tile';
+      img.src = `img/tiles/${p}.webp`;
+      img.alt = '';
+      img.style.left = `${(i * 13 + 4) % 92}%`;
+      img.style.top = `${(i * 29 + 10) % 90}%`;
+      img.style.animationDelay = `${-i * 2.3}s`;
+      bg.appendChild(img);
+    });
+  }
+
+  // Reveal on scroll, staggered within each group.
+  const targets = document.querySelectorAll('.section-head, .demo, .steps > li, .features > .card, .world, .shots, .android, .faq > details, .final > *');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e) => {
+      if (!e.isIntersecting) return;
+      e.target.classList.add('in');
+      io.unobserve(e.target);
+    });
+  }, { threshold: 0.15 });
+  const watch = () => document.querySelectorAll('.section-head, .demo, .steps > li, .features > .card, .world, .shots, .android, .faq > details, .final > *').forEach((el) => {
+    if (el.hasAttribute('data-reveal')) return;
+    const i = [...el.parentElement.children].indexOf(el);
+    el.setAttribute('data-reveal', '');
+    el.style.setProperty('--d', `${Math.min(i, 6) * 0.08}s`);
+    io.observe(el);
+  });
+  watch();
+  void targets;
+
+  // Anything already scrolled past (fast flings, menu jumps) shows at once.
+  let pending = false;
+  addEventListener('scroll', () => {
+    if (pending) return;
+    pending = true;
+    requestAnimationFrame(() => {
+      pending = false;
+      document.querySelectorAll('[data-reveal]:not(.in)').forEach((el) => {
+        if (el.getBoundingClientRect().top < innerHeight) { el.classList.add('in'); io.unobserve(el); }
+      });
+    });
+  }, { passive: true });
+
+  // Count-up numbers.
+  document.querySelectorAll('[data-count]').forEach((el) => {
+    const end = +el.dataset.count;
+    const t0 = performance.now();
+    const tick = (t) => {
+      const k = Math.min(1, (t - t0) / 1400);
+      el.textContent = Math.round(end * (1 - Math.pow(1 - k, 3)));
+      if (k < 1) requestAnimationFrame(tick);
+    };
+    el.textContent = '0';
+    setTimeout(() => requestAnimationFrame(tick), 500);
+  });
+
+  if (!canHover) return;
+
+  // 3D tilt and spotlight that follow the pointer.
+  document.addEventListener('pointermove', (e) => {
+    const el = e.target.closest('.card, .world, .phone');
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    const x = (e.clientX - r.left) / r.width;
+    const y = (e.clientY - r.top) / r.height;
+    const max = el.classList.contains('phone') ? 8 : 6;
+    el.style.setProperty('--ry', `${(x - 0.5) * max}deg`);
+    el.style.setProperty('--rx', `${(0.5 - y) * max}deg`);
+    el.style.setProperty('--mx', `${x * 100}%`);
+    el.style.setProperty('--my', `${y * 100}%`);
+  });
+  document.addEventListener('pointerout', (e) => {
+    const el = e.target.closest('.card, .world, .phone');
+    if (el && !el.contains(e.relatedTarget)) {
+      el.style.setProperty('--rx', '0deg');
+      el.style.setProperty('--ry', '0deg');
+    }
+  });
+
+  // World cards twist their own tiles while hovered (FLIP animation).
+  document.querySelectorAll('.world').forEach((card) => {
+    const box = card.querySelector('.world-tiles');
+    if (!box) return;
+    const original = [...box.children];
+    let timer = null;
+    const flip = (order) => {
+      const before = new Map([...box.children].map((s) => [s, s.getBoundingClientRect()]));
+      order.forEach((s) => box.appendChild(s));
+      order.forEach((s) => {
+        const a = before.get(s);
+        const b = s.getBoundingClientRect();
+        s.style.transition = 'none';
+        s.style.transform = `translate(${a.left - b.left}px, ${a.top - b.top}px)`;
+        void s.offsetWidth;
+        s.style.transition = '';
+        s.style.transform = '';
+      });
+    };
+    const twist = () => {
+      const cur = [...box.children];
+      const n = Math.floor(Math.random() * 3);
+      const idx = Math.random() < 0.5 ? [n * 3, n * 3 + 1, n * 3 + 2] : [n, n + 3, n + 6];
+      const next = cur.slice();
+      idx.forEach((cell, i) => { next[idx[(i + 1) % 3]] = cur[cell]; });
+      flip(next);
+    };
+    card.addEventListener('pointerenter', () => { twist(); timer = setInterval(twist, 900); });
+    card.addEventListener('pointerleave', () => { clearInterval(timer); flip(original); });
   });
 })();

@@ -19,7 +19,7 @@
 <meta name="twitter:card" content="summary_large_image">
 
 <link rel="preload" href="fonts/LilitaOne-Regular.ttf" as="font" type="font/ttf" crossorigin>
-<link rel="stylesheet" href="landing.css">
+<link rel="stylesheet" href="landing.css?v=2">
 
 <script type="application/ld+json">
 {
@@ -34,6 +34,8 @@
 </script>
 </head>
 <body>
+<div class="scroll-progress" aria-hidden="true"></div>
+<div class="bg-tiles" id="bgTiles" aria-hidden="true"></div>
 
 <header class="nav">
   <a class="brand" href="#top">
@@ -75,14 +77,14 @@
       </div>
 
       <ul class="stats" aria-label="At a glance">
-        <li><strong>100</strong> levels</li>
-        <li><strong>10</strong> worlds</li>
+        <li><strong data-count="100">100</strong> levels</li>
+        <li><strong data-count="10">10</strong> worlds</li>
         <li><strong>Daily</strong> puzzle</li>
       </ul>
     </div>
 
     <div class="hero-phone">
-      <div class="phone">
+      <div class="phone" data-tilt="8">
         <video src="media/gameplay.mp4" poster="media/poster.webp" autoplay muted loop playsinline
                preload="metadata" aria-label="Gameplay video: tiles wave into place and a puzzle is solved in six moves"></video>
         <div class="phone-island"></div>
@@ -293,6 +295,6 @@
   <p>© 2026 Twist the Tiles. Apple and the Apple logo are trademarks of Apple Inc. App Store is a service mark of Apple Inc.</p>
 </footer>
 
-<script src="landing.js" defer></script>
+<script src="landing.js?v=2" defer></script>
 </body>
 </html>
