@@ -84,6 +84,17 @@ p { margin: 0 0 12px; }
   .nav-links { display: none; }
   .nav-cta { margin-left: auto; }
 }
+.brand span, .nav-cta { white-space: nowrap; }
+@media (max-width: 400px) {
+  .nav { gap: 10px; padding-top: 10px; padding-bottom: 10px; }
+  .brand { font-size: 18px; gap: 8px; }
+  .brand img { width: 34px; height: 34px; }
+  .nav-cta { font-size: 15px; padding: 10px 12px; }
+}
+@media (max-width: 340px) {
+  .brand span { font-size: 16px; }
+  .nav-cta { font-size: 14px; padding: 10px 10px; }
+}
 
 /* ---------- Layout ---------- */
 main { padding: 0 var(--gutter); }
@@ -543,4 +554,42 @@ main { padding: 0 var(--gutter); }
 @media (prefers-reduced-motion: reduce) {
   [data-reveal] { opacity: 1; translate: none; transition: none; }
   .logo-top, .logo-bottom, .bg-tile, .board.nudge .tile .face, .ribbon { animation: none !important; }
+}
+
+/* ---------- Small-screen fit ---------- */
+.board { container-type: inline-size; }
+.win { gap: 0; }
+@container (max-width: 380px) {
+  .win { padding: 14px; }
+  .win-title { font-size: 34px; }
+  .win-stars { font-size: 34px; letter-spacing: 4px; margin: 2px 0; }
+  .win-text { font-size: 14px; line-height: 1.4; margin-bottom: 12px; text-align: center; }
+  .win-actions { flex-wrap: nowrap; gap: 8px; }
+  .win-actions .btn { min-height: 42px; font-size: 15px; padding: 8px 12px; border-width: 2px; }
+}
+@container (max-width: 300px) {
+  .win-title { font-size: 30px; }
+  .win-stars { font-size: 28px; }
+  .win-text { font-size: 13px; }
+  .win-actions .btn { font-size: 14px; padding: 8px 10px; }
+}
+@media (max-width: 360px) {
+  .demo-side { gap: 18px 10px; }
+  .target-grid { max-width: 112px; }
+  .moves { font-size: 38px; }
+  .theme-tabs button { min-height: 38px; }
+  .board { padding: 8px; border-radius: 24px; }
+  .board-grid { border-radius: 16px; }
+  .section { padding-top: 56px; }
+}
+
+/* Keep the whole board visible on short screens (phones held sideways). */
+.board {
+  max-width: max(260px, min(100%, calc(100vh - 110px)));
+  max-width: max(260px, min(100%, calc(100svh - 110px)));
+  margin: 0 auto;
+}
+@media (max-height: 500px) and (orientation: landscape) {
+  .hero { padding-top: 24px; }
+  .phone { width: min(220px, 40vw); }
 }
