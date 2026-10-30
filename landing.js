@@ -411,30 +411,8 @@
     setTimeout(() => requestAnimationFrame(tick), 500);
   });
 
-  if (!canHover) return;
-
-  // 3D tilt and spotlight that follow the pointer.
-  document.addEventListener('pointermove', (e) => {
-    const el = e.target.closest('.card, .world, .phone');
-    if (!el) return;
-    const r = el.getBoundingClientRect();
-    const x = (e.clientX - r.left) / r.width;
-    const y = (e.clientY - r.top) / r.height;
-    const max = el.classList.contains('phone') ? 8 : 6;
-    el.style.setProperty('--ry', `${(x - 0.5) * max}deg`);
-    el.style.setProperty('--rx', `${(0.5 - y) * max}deg`);
-    el.style.setProperty('--mx', `${x * 100}%`);
-    el.style.setProperty('--my', `${y * 100}%`);
-  });
-  document.addEventListener('pointerout', (e) => {
-    const el = e.target.closest('.card, .world, .phone');
-    if (el && !el.contains(e.relatedTarget)) {
-      el.style.setProperty('--rx', '0deg');
-      el.style.setProperty('--ry', '0deg');
-    }
-  });
-
-  // World cards twist their own tiles while hovered (FLIP animation).
+  // World cards twist their own tiles (FLIP animation): while hovered with a
+  // mouse; on touch screens when tapped and now and then while on screen.
   document.querySelectorAll('.world').forEach((card) => {
     const box = card.querySelector('.world-tiles');
     if (!box) return;
@@ -461,7 +439,52 @@
       idx.forEach((cell, i) => { next[idx[(i + 1) % 3]] = cur[cell]; });
       flip(next);
     };
-    card.addEventListener('pointerenter', () => { twist(); timer = setInterval(twist, 900); });
-    card.addEventListener('pointerleave', () => { clearInterval(timer); flip(original); });
+
+    if (canHover) {
+      card.addEventListener('pointerenter', () => { twist(); timer = setInterval(twist, 900); });
+      card.addEventListener('pointerleave', () => { clearInterval(timer); flip(original); });
+      return;
+    }
+
+    // Touch: twist twice, then untwist back to the picture.
+    let busyCard = false;
+    const play = () => {
+      if (busyCard) return;
+      busyCard = true;
+      twist();
+      setTimeout(twist, 650);
+      setTimeout(() => { flip(original); busyCard = false; }, 1700);
+    };
+    card.addEventListener('click', play);
+    let visible = false;
+    new IntersectionObserver(([e]) => {
+      visible = e.isIntersecting;
+      if (visible) setTimeout(play, 300 + Math.random() * 900);
+    }, { threshold: 0.6 }).observe(card);
+    setInterval(() => { if (visible && !document.hidden && Math.random() < 0.35) play(); }, 2600);
   });
+
+  if (!canHover) return;
+
+  // 3D tilt and spotlight that follow the pointer.
+  document.addEventListener('pointermove', (e) => {
+    const el = e.target.closest('.card, .world, .phone');
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    const x = (e.clientX - r.left) / r.width;
+    const y = (e.clientY - r.top) / r.height;
+    const max = el.classList.contains('phone') ? 8 : 6;
+    el.style.setProperty('--ry', `${(x - 0.5) * max}deg`);
+    el.style.setProperty('--rx', `${(0.5 - y) * max}deg`);
+    el.style.setProperty('--mx', `${x * 100}%`);
+    el.style.setProperty('--my', `${y * 100}%`);
+  });
+  document.addEventListener('pointerout', (e) => {
+    const el = e.target.closest('.card, .world, .phone');
+    if (el && !el.contains(e.relatedTarget)) {
+      el.style.setProperty('--rx', '0deg');
+      el.style.setProperty('--ry', '0deg');
+    }
+  });
+
 })();
