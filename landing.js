@@ -367,7 +367,7 @@
   }
 
   // Reveal on scroll, staggered within each group.
-  const targets = document.querySelectorAll('.section-head, .demo, .steps > li, .features > .card, .world, .shots, .faq > details, .final > *');
+  const targets = document.querySelectorAll('.section-head, .demo, .steps > li, .features > .card, .world, .faq > details, .final > *');
   const io = new IntersectionObserver((entries) => {
     entries.forEach((e) => {
       if (!e.isIntersecting) return;
@@ -375,7 +375,7 @@
       io.unobserve(e.target);
     });
   }, { threshold: 0.15 });
-  const watch = () => document.querySelectorAll('.section-head, .demo, .steps > li, .features > .card, .world, .shots, .faq > details, .final > *').forEach((el) => {
+  const watch = () => document.querySelectorAll('.section-head, .demo, .steps > li, .features > .card, .world, .faq > details, .final > *').forEach((el) => {
     if (el.hasAttribute('data-reveal')) return;
     const i = [...el.parentElement.children].indexOf(el);
     el.setAttribute('data-reveal', '');
